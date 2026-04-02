@@ -1,54 +1,96 @@
-# ReliaQuest's Entry-Level Java Challenge
+# ReliaQuest Entry-Level Java Challenge
 
-Please keep the following in mind while working on this challenge:
-* Code implementations will not be graded for **correctness** but rather on practicality
-* Articulate clear and concise design methodologies, if necessary
-* Use clean coding etiquette
-  * E.g. avoid liberal use of new-lines, odd variable and method names, random indentation, etc...
-* Test cases are not required
+## Overview
 
-## Problem Statement
+This project implements a REST API for employee management as part of the **ReliaQuest Entry-Level Java Challenge**. The goal was to expose employee information through REST endpoints that could be consumed by an external SaaS platform.
 
-Your employer has recently purchased a license to top-tier SaaS platform, Employees-R-US, to off-load all employee management responsibilities.
-Unfortunately, your company's product has an existing employee management solution that is tightly coupled to other services and therefore 
-cannot be replaced whole-cloth. Product and Development leads in your department have decided it would be best to interface
-the existing employee management solution with the commercial offering from Employees-R-US for the time being until all employees can be
-migrated to the new SaaS platform.
+The implementation focuses on clean structure, simple design, and practical implementation — without requiring persistence or database integration.
 
-Your ask is to expose employee information as a protected, secure REST API for consumption by Employees-R-US web hooks.
-The initial REST API will consist of 3 endpoints, listed in the following section. If for any reason the implementation 
-of an endpoint is problematic, the team lead will accept **pseudo-code** and a pertinent description (e.g. java-doc) of intent.
+---
 
-Good luck!
+## Requirements
 
-## Endpoints to implement (API module)
+The assignment required implementing the following endpoints:
 
-_See `com.challenge.api.controller.EmployeeController` for details._
+| # | Endpoint | Description |
+|---|----------|-------------|
+| 1 | `GET /api/v1/employee` | Get all employees |
+| 2 | `GET /api/v1/employee/{uuid}` | Get employee by UUID |
+| 3 | `POST /api/v1/employee` | Create a new employee |
 
-getAllEmployees()
+> Persistence was not required — mock employee data is generated and stored in memory.
 
-    output - list of employees
-    description - this should return all employees, unfiltered
+---
 
-getEmployeeByUuid(...)
+## Implementation Approach
 
-    path variable - employee UUID
-    output - employee
-    description - this should return a single employee based on the provided employee UUID
+### 1. Layered Architecture
 
-createEmployee(...)
+The project follows a simple layered architecture:
+```
+Controller Layer   →   Handles HTTP requests and responses
+Service Layer      →   Contains business logic
+Model Layer        →   Employee interface and implementation
+Exception Layer    →   Global exception handling
+```
 
-    request body - attributes necessary to create an employee
-    output - employee
-    description - this should return a single employee, if created, otherwise error
+### 2. In-Memory Data Storage
 
-## Code Formatting
+Since persistence was not required, employee records are stored using an in-memory data structure acting as a mock database:
+```java
+Map<UUID, Employee> employeeStore = new HashMap<>();
+```
 
-This project utilizes Gradle plugin [Diffplug Spotless](https://github.com/diffplug/spotless/tree/main/plugin-gradle) to enforce format
-and style guidelines with every build.
+### 3. Endpoint Implementations
 
-To format code according to style guidelines, you can run **spotlessApply** task.
-`./gradlew spotlessApply`
+#### `GET /api/v1/employee`
+Returns a list of all employees currently stored in memory.
 
-The spotless plugin will also execute check-and-validation tasks as part of the gradle **build** task.
-`./gradlew build`
+#### `GET /api/v1/employee/{uuid}`
+Returns a single employee matching the provided UUID.
+Returns an error response if the employee does not exist.
+
+#### `POST /api/v1/employee`
+Creates a new employee by:
+- Generating a UUID
+- Setting the contract hire date
+- Storing the employee in memory
+- Returning the created employee object
+
+### 4. Global Exception Handling
+
+A `@ControllerAdvice` global exception handler covers common API error scenarios:
+
+| Scenario | HTTP Status |
+|----------|-------------|
+| Employee not found | `404 Not Found` |
+| Invalid request body | `400 Bad Request` |
+| Unexpected errors | `500 Internal Server Error` |
+
+---
+
+## Project Structure
+```
+src/main/java/com/reliaquest/
+├── controller/       # REST controllers
+├── service/          # Business logic
+├── model/            # Employee interface & implementation
+└── exception/        # Global exception handler
+```
+---
+
+## Postman API Testing Screenshots
+
+### Create Employee
+<img width="2006" height="1457" alt="Screenshot 2026-04-02 175615" src="https://github.com/user-attachments/assets/c2c1f740-6026-4ae4-bcb5-b439c5ed8b97" />
+
+### Get All Employees
+<img width="2014" height="1475" alt="Screenshot 2026-04-02 180201" src="https://github.com/user-attachments/assets/fc9d0db4-b057-4462-b1fb-0f0c18c168a9" />
+
+
+### Get Employee By UUID
+<img width="2016" height="1364" alt="Screenshot 2026-04-02 180251" src="https://github.com/user-attachments/assets/9f2bfd89-da17-4d48-b187-6155161265b4" />
+
+---
+
+**Done By Arshiya Shaikh**
